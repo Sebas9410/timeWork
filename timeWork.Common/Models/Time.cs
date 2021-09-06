@@ -2,10 +2,10 @@
 
 namespace timeWork.Common.Models
 {
-    public class Work
+    public class Time
     {
 
-        public int id { get; set; }
+        public string id { get; set; }
 
         public DateTime CreatedTime { get; set; }
 
