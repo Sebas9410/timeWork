@@ -64,5 +64,57 @@ namespace timeWork.Functions.Functions
 
             });
         }
+
+
+        [FunctionName(nameof(UpdateTime))]
+        public static async Task<IActionResult> UpdateTime(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = "time/{id}")] HttpRequest req,
+            [Table("time", Connection = "AzureWebJobsStorage")] CloudTable timeTable,
+            string id,
+            ILogger log)
+        {
+            log.LogInformation($"Update for time: {id}, received.");
+
+
+            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+            Time time = JsonConvert.DeserializeObject<Time>(requestBody);
+
+         
+            TableOperation findOperation = TableOperation.Retrieve<timeEntity>("TIME", id);
+            TableResult findResult = await timeTable.ExecuteAsync(findOperation);
+            if (findResult.Result == null)
+            {
+                return new BadRequestObjectResult(new Response
+                {
+                    IsSuccess = false,
+                    Message = "id not found."
+                });
+            }
+
+            //Update todo
+
+            timeEntity timeEntity = (timeEntity)findResult.Result;
+            timeEntity.tipo = timeEntity.tipo;
+            timeEntity.consolidado = timeEntity.consolidado;
+            if (!string.IsNullOrEmpty(time.id))
+            {
+                timeEntity.id = time.id;
+            }
+
+
+            TableOperation addOperation = TableOperation.Replace(timeEntity);
+            await timeTable.ExecuteAsync(addOperation);
+
+            string message = $"id: {id}, update in table.";
+            log.LogInformation(message);
+
+            return new OkObjectResult(new Response
+            {
+                IsSuccess = true,
+                Message = message,
+                Result = timeEntity
+
+            });
+        }
     }
 }
