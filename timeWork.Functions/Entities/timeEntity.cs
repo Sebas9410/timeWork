@@ -5,7 +5,7 @@ using System.Text;
 
 namespace timeWork.Functions.Entities
 {
-    class timeEntity: TableEntity
+    public class timeEntity: TableEntity
     {
         public string id { get; set; }
 
